@@ -1,0 +1,38 @@
+FROM centos
+MAINTAINER ivzyukov
+
+ADD mongodb-mms-3.4.3.402-1.x86_64.rpm /tmp/mongodb-mms-3.4.3.402-1.x86_64.rpm
+
+RUN yum install /tmp/mongodb-mms-3.4.3.402-1.x86_64.rpm -y \
+	&& rm -f /tmp/mongodb-mms-3.4.3.402-1.x86_64.rpm \
+	&& yum install openssl net-tools -y \
+	&& yum clean all
+
+RUN yum install cyrus-sasl-devel -y
+
+#RUN mkdir -p /opt/mongodb/mms/mongodb-releases \ 
+#	 chown mongodb-mms:mongodb-mms /opt/mongodb/mms/mongodb-releases
+#ADD mongodb-linux-x86_64-2.6.12.tgz /opt/mongodb/mms/mongodb-releases/mongodb-linux-x86_64-2.6.12.tgz
+#RUN chown mongodb-mms:mongodb-mms /opt/mongodb/mms/mongodb-releases/mongodb-linux-x86_64-2.6.12.tgz
+
+RUN mkdir -p /data/backupDaemon/ \
+	&& chown mongodb-mms:mongodb-mms /data/backupDaemon
+
+RUN mkdir -p /etc/mongodb-mms/ \
+	&& chown mongodb-mms:mongodb-mms /etc/mongodb-mms/
+
+COPY gen.key.new /etc/mongodb-mms/gen.key
+RUN chown mongodb-mms:mongodb-mms /etc/mongodb-mms/
+RUN chown mongodb-mms:mongodb-mms /etc/mongodb-mms/gen.key
+
+ENV TZ=Europe/Moscow
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+COPY default-conf-mms.properties /opt/mongodb/mms/conf/conf-mms.properties
+
+ADD docker-entrypoint.sh /tmp/docker-entrypoint.sh
+RUN chmod +x /tmp/docker-entrypoint.sh
+
+ENTRYPOINT ["/tmp/docker-entrypoint.sh"]
+
+CMD ["mongodb-mms"]

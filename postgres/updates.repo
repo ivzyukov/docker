@@ -1,0 +1,5 @@
+[updates]
+name=11.6-updates
+baseurl=http://172.25.6.71/pub/repos/slices/11.6/el7/updates
+enabled=1
+gpgcheck=0

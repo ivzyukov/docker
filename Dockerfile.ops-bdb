@@ -1,0 +1,10 @@
+FROM centos
+MAINTAINER ivzyukov
+
+RUN mkdir -p /etc/yum.repos.d/
+ADD mongodb.repo /etc/yum.repos.d/mongodb.repo
+RUN yum install -y mongodb-org mongodb-org-shell && yum clean all
+RUN mkdir -p /data/backup && chown mongod:mongod /data/backup
+ENV TZ=Europe/Moscow
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+CMD mongod --port 27018 --dbpath /data/backup
